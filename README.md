@@ -9,9 +9,10 @@ uses, then finds either:
   hexagons of yours that are at risk, and progress towards ones you can't take yet.
 - **Through chosen hexagons**: the shortest street route that enters every hexagon you
   click.
-- **Finish** back at the start, anywhere, or (most points) at an **end point** you place on
-  the map. With an end point the distance can't go below the shortest street route there;
-  anything above it goes on detours for points along the way.
+- **Finish** back at the start, anywhere, or at an **end point** you place on the map (handy
+  for running home from work, or to a station). For most points the distance can't go below
+  the shortest street route to the end; anything above it goes on detours for points along
+  the way. Drag the E marker to move it, or on a phone tap a hexagon and choose **End here**.
 - **Several routes at once** (most points): set "Routes to plan" to up to 5. Each later route
   goes for ground the earlier ones don't, so together they're a set of runs for different
   days. Tick which ones to show (points and standings are for the ticked ones together),

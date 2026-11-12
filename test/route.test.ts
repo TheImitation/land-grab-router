@@ -71,6 +71,29 @@ describe("visitAll", () => {
     expect(r.path.length).toBeLessThan(16_000);
   });
 
+  it("finishes at the end point after entering every chosen hexagon", () => {
+    const targets = [cellNear(25, 5), cellNear(15, 25), cellNear(5, 10)];
+    const end = 2 * 31 + 28;
+    const r = visitAll({ g, start: centre, targets, closed: true, end });
+    for (const t of targets) expect(r.cells.has(g.cellIndex.get(t)!)).toBe(true);
+    expect(r.path.nodes[0]).toBe(centre);
+    expect(r.path.nodes[r.path.nodes.length - 1]).toBe(end);
+    // Ordered for the end: reaching (5, 10) last, next to the end, beats finishing on (15, 25).
+    const open = visitAll({ g, start: centre, targets, closed: false });
+    expect(r.path.length).toBeLessThan(open.path.length + dijkstra(g, open.path.nodes[open.path.nodes.length - 1], { target: end }).dist[end]);
+  });
+
+  it("goes straight to the end point when there's nothing to pick up", () => {
+    const end = 5 * 31 + 25;
+    const r = visitAll({ g, start: centre, targets: [], closed: false, end });
+    expect(r.path.nodes[r.path.nodes.length - 1]).toBe(end);
+    expect(r.path.length).toBeCloseTo(dijkstra(g, centre, { target: end }).dist[end], 3);
+  });
+
+  it("refuses an end point the streets don't reach", () => {
+    expect(() => visitAll({ g, start: centre, targets: [cellNear(2, 2)], closed: false, end: 31 * 31 })).toThrow(/no street route/);
+  });
+
   it("flags hexagons with no streets", () => {
     const r = visitAll({ g, start: centre, targets: ["881f1d4887fffff"], closed: false });
     expect(r.unreachable).toEqual(["881f1d4887fffff"]);

@@ -9,7 +9,8 @@ import { visitAll } from "./solve/visitAll";
 
 export type WorkerRequest =
   | { id: number; type: "load"; bbox: BBox; profile: Profile; resolution: number }
-  | { id: number; type: "visitAll"; start: LatLng; targets: string[]; closed: boolean }
+  /** `end`: finish here instead (overrides `closed`). */
+  | { id: number; type: "visitAll"; start: LatLng; targets: string[]; closed: boolean; end?: LatLng }
   | {
       id: number;
       type: "maxScore";
@@ -86,18 +87,17 @@ self.onmessage = async (ev: MessageEvent<WorkerRequest>) => {
     if (!graph || graph.n === 0) throw new Error("No street map loaded for this area.");
     const g = graph;
     const start = nearestNode(g, req.start.lat, req.start.lng);
+    const end = req.end ? nearestNode(g, req.end.lat, req.end.lng) : undefined;
     if (req.type === "measure") {
-      const end = nearestNode(g, req.end.lat, req.end.lng);
-      const d = dijkstra(g, start, { target: end }).dist[end];
+      const d = dijkstra(g, start, { target: end }).dist[end!];
       post({ id: req.id, type: "measured", length: Number.isFinite(d) ? d : null });
     } else if (req.type === "visitAll") {
-      const r = visitAll({ g, start, targets: req.targets, closed: req.closed, onProgress: progress });
+      const r = visitAll({ g, start, targets: req.targets, closed: req.closed, end, onProgress: progress });
       post({ id: req.id, type: "route", route: toMessage(g, r) });
     } else {
       const known = new Map(req.known);
       const values = new Float64Array(g.cellIds.length);
       g.cellIds.forEach((c, i) => (values[i] = known.get(c) ?? req.unclaimed));
-      const end = req.end ? nearestNode(g, req.end.lat, req.end.lng) : undefined;
       const routes = planRoutes({ g, start, budget: req.budget, closed: req.closed, end, values, count: req.count ?? 1, onProgress: progress });
       post({ id: req.id, type: "routes", routes: routes.map((r) => toMessage(g, r)) });
     }

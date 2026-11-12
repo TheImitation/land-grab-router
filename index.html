@@ -80,6 +80,7 @@
           <p class="hint" id="mode-hint"></p>
           <div class="seg small" id="tool" role="group" aria-label="Map click does">
             <button type="button" data-tool="start">Click sets start</button>
+            <button type="button" data-tool="end">Click sets end</button>
             <button type="button" data-tool="select">Click picks hexagons</button>
           </div>
           <p class="row" id="selected-row"><span id="selected-count">0 hexagons picked</span><button type="button" id="clear-selected" class="link">Clear</button></p>
@@ -112,10 +113,6 @@
               <button type="button" data-finish="start">Back to start</button>
               <button type="button" data-finish="end">End point</button>
               <button type="button" data-finish="anywhere">Anywhere</button>
-            </div>
-            <div class="seg small" id="place" role="group" aria-label="Map click does" hidden>
-              <button type="button" data-place="start">Click sets start</button>
-              <button type="button" data-place="end">Click sets end</button>
             </div>
             <span class="hint" id="end-hint" hidden>Click the map to set where you'll finish.</span>
           </div>

@@ -11,6 +11,8 @@ export interface VisitAllInput {
   targets: string[];
   /** Finish back at the start. */
   closed: boolean;
+  /** Finish at this street node instead (takes precedence over `closed`). */
+  end?: number;
   onProgress?: Progress;
 }
 
@@ -24,9 +26,14 @@ export interface VisitAllInput {
  *    route has already passed through on the way.
  * 4. Tighten (see tighten.ts): re-pick each entry point now that both neighbours are
  *    known, and drop stops the rest of the route covers anyway.
+ *
+ * With an end point the order is chosen for a route that finishes there, and the last leg
+ * goes to it.
  */
-export function visitAll({ g, start, targets, closed, onProgress }: VisitAllInput): RouteResult {
+export function visitAll({ g, start, targets, end, onProgress, ...inp }: VisitAllInput): RouteResult {
+  const closed = inp.closed && end === undefined;
   const comp = g.component[start];
+  if (end !== undefined && g.component[end] !== comp) throw new Error("There's no street route between your start and end points.");
   const byCell = nodesByCell(g, comp);
   const unreachable: string[] = [];
   const cells: number[] = [];
@@ -39,9 +46,10 @@ export function visitAll({ g, start, targets, closed, onProgress }: VisitAllInpu
   const startCell = g.cellOf[start];
   const goals = cells.filter((c) => c !== startCell || !g.safe[start]);
   const reps = goals.map((c) => centreNode(g, c, byCell.get(c)!));
-  const matrix = distanceMatrix(g, [start, ...reps], onProgress);
+  // Matrix indexes: 0 is the start, 1..n the hexagons, and n + 1 the end point if there is one.
+  const matrix = distanceMatrix(g, [start, ...reps, ...(end === undefined ? [] : [end])], onProgress);
 
-  const tail = closed ? 0 : NO_TAIL;
+  const tail = end !== undefined ? reps.length + 1 : closed ? 0 : NO_TAIL;
   let tour = nearestNeighbour(matrix, reps.map((_, i) => i + 1));
   tour = twoOpt(matrix, tour, tail);
   tour = orOpt(matrix, tour, tail);
@@ -63,7 +71,7 @@ export function visitAll({ g, start, targets, closed, onProgress }: VisitAllInpu
         break;
       }
     }
-    if (next === -1 && closed) next = start;
+    if (next === -1) next = end ?? (closed ? start : -1);
 
     const fromCur = dijkstra(g, cur);
     const toNext = next === -1 ? null : dijkstra(g, next).dist;
@@ -87,7 +95,10 @@ export function visitAll({ g, start, targets, closed, onProgress }: VisitAllInpu
     stops.pinned.push(!byCell.get(goal)!.some((v) => g.safe[v]));
     cur = best;
   }
-  if (closed && stops.nodes.length > 1) legs.push(legBetween(g, cur, start));
+  if (end !== undefined) {
+    legs.push(legBetween(g, cur, end));
+    stops.end = end;
+  } else if (closed && stops.nodes.length > 1) legs.push(legBetween(g, cur, start));
 
   onProgress?.("Trimming wasted distance", 0.95);
   const wanted = new Set(goals);
