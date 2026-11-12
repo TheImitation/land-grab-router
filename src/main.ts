@@ -952,7 +952,8 @@ function applyFinish() {
   const endTool = endWanted() && !touchUI();
   if ((state.tool === "end" && !endTool) || (state.tool === "select" && !visit)) state.tool = "start";
   const tool = $("tool");
-  tool.hidden = !visit && !endTool;
+  $("tool-field").hidden = !visit && !endTool;
+  $("tool-label").textContent = touchUI() ? "Tapping the map" : "Clicking the map";
   tool.querySelector<HTMLElement>('[data-tool="end"]')!.hidden = !endTool;
   tool.querySelector<HTMLElement>('[data-tool="select"]')!.hidden = !visit;
   setPressed("tool", "data-tool", state.tool);

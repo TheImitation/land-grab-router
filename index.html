@@ -78,11 +78,24 @@
             <button type="button" data-mode="visit">Through chosen hexagons</button>
           </div>
           <p class="hint" id="mode-hint"></p>
-          <div class="seg small" id="tool" role="group" aria-label="Map click does">
-            <button type="button" data-tool="start">Click sets start</button>
-            <button type="button" data-tool="end">Click sets end</button>
-            <button type="button" data-tool="select">Click picks hexagons</button>
+          <!-- Where the route starts and finishes, and what a map click sets, kept together. -->
+          <div class="field" id="finish-field">
+            <span>Finish</span>
+            <div class="seg small" id="finish" role="group" aria-label="Where the route finishes">
+              <button type="button" data-finish="start">Back to start</button>
+              <button type="button" data-finish="end">End point</button>
+              <button type="button" data-finish="anywhere">Anywhere</button>
+            </div>
           </div>
+          <div class="field" id="tool-field">
+            <span id="tool-label">Clicking the map</span>
+            <div class="seg small" id="tool" role="group" aria-labelledby="tool-label">
+              <button type="button" data-tool="start">Sets start</button>
+              <button type="button" data-tool="end">Sets end</button>
+              <button type="button" data-tool="select">Picks hexagons</button>
+            </div>
+          </div>
+          <p class="hint" id="end-hint" hidden>Click the map to set where you'll finish.</p>
           <p class="row" id="selected-row"><span id="selected-count">0 hexagons picked</span><button type="button" id="clear-selected" class="link">Clear</button></p>
           <div class="row"><button type="button" id="locate" class="link">Start from my location</button></div>
           <div class="field" id="budget-field">
@@ -106,15 +119,6 @@
               <button type="button" id="count-up" aria-label="One more route">+</button>
             </div>
             <span class="hint" id="count-hint">Plan several runs at once: each extra route goes for ground the others don't, so you can run them on different days.</span>
-          </div>
-          <div class="field" id="finish-field">
-            <span>Finish</span>
-            <div class="seg small" id="finish" role="group" aria-label="Where the route finishes">
-              <button type="button" data-finish="start">Back to start</button>
-              <button type="button" data-finish="end">End point</button>
-              <button type="button" data-finish="anywhere">Anywhere</button>
-            </div>
-            <span class="hint" id="end-hint" hidden>Click the map to set where you'll finish.</span>
           </div>
           <div class="seg small" id="profile" role="group" aria-label="Activity">
             <button type="button" data-profile="foot">Run / walk</button>
